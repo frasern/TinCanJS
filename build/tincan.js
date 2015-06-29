@@ -340,7 +340,13 @@ var TinCan;
                     delete qsParams.actor;
                 }
                 catch (ex) {
-                    this.log("_initFromQueryString - failed to set actor: " + ex);
+                    try {
+                        this.actor = TinCan.Group.fromJSON(qsParams.actor);
+                        delete qsParams.actor;
+                    }
+                    catch (ex2) {
+                        this.log("_initFromQueryString - failed to set actor: " + ", ".join([ex, ex2]));
+                    }
                 }
             }
 
@@ -3663,6 +3669,10 @@ TinCan client library
         Agent.prototype.log("fromJSON");
         var _agent = JSON.parse(agentJSON);
 
+        if (_agent.hasOwnProperty("objectType") && _agent.objectType !== Agent.prototype.objectType) {
+            throw "Unexpected object type for agent: " + _agent.objectType;
+        }
+
         return new Agent(_agent);
     };
 }());
@@ -3824,6 +3834,10 @@ TinCan client library
     Group.fromJSON = function (groupJSON) {
         Group.prototype.log("fromJSON");
         var _group = JSON.parse(groupJSON);
+
+        if (_group.hasOwnProperty("objectType") && _group.objectType !== Group.prototype.objectType) {
+            throw "Unexpected object type for group: " + _group.objectType;
+        }
 
         return new Group(_group);
     };
